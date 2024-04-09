@@ -1,6 +1,6 @@
 #!/bin/env sh
 
-pluginPath="$HOME/home/dev/desktop/portal/portal.plugin.zsh";
+pluginPath="$HOME/.local/share/zsh/plugins/portal/portal.plugin.zsh";
 
 # set aliases
 function pc(){
