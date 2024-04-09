@@ -1,22 +1,23 @@
 #!/bin/env sh
 
+pluginPath="$HOME/home/dev/desktop/portal/portal.plugin.zsh";
+
 # set aliases
 function pc(){
-  bash "$HOME/.shconf/rc/tools/portal" create $1 $(pwd);
+  bash $pluginPath create $1 $(pwd);
 }
 function pj(){
-  eval $(bash "$HOME/.shconf/rc/tools/portal" jump $1);
+  eval $(bash $pluginPath jump $1);
 }
 function pd(){
-  bash "$HOME/.shconf/rc/tools/portal" delete $1;
+  bash $pluginPath $1;
 }
 function pl(){
-  bash "$HOME/.shconf/rc/tools/portal" list $1;
+  bash $pluginPath list $1;
 }
 function ph(){
-  bash "$HOME/.shconf/rc/tools/portal" help;
+  bash $pluginPath help;
 }
-
 
 # portalScriptPath="$(pwd)/${BASH_SOURCE[0]}";
 # portalScriptPath="$HOME/.shconf/rc/tools/portal";
