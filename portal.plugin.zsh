@@ -38,7 +38,7 @@ source $portalScriptPath;
 
 function portalJump(){
   if [ -z $1 ]; then
-    echo "provide a portal name.";
+    echo "echo 'provide a portal name.'";
     exit 1;
   fi
   path="${ports[$1]}";
