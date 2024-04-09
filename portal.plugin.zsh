@@ -1,14 +1,14 @@
-#!/bin/env sh
+#!/bin/env zsh
 
-# pluginPath="$HOME/.local/share/zsh/plugins/portal/portal.plugin.zsh";
+pluginPath="$HOME/.local/share/zsh/plugins/portal/portal.plugin.zsh";
 
 # # set aliases
 # function pc(){
 #   bash $pluginPath create $1 $(pwd);
 # }
-# function pj(){
-#   eval $(bash $pluginPath jump $1);
-# }
+function pj(){
+  eval $(zsh $pluginPath jump $1);
+}
 # function pd(){
 #   bash $pluginPath $1;
 # }
@@ -34,19 +34,30 @@ if [[ ! -f $portalScriptPath ]]; then
 fi
 
 ## source portals
-source $portalScriptPath;
+# source $portalScriptPath;
 
 function _portalJump(){
+  source $portalScriptPath;
   if [ -z $1 ]; then
     echo "echo 'provide a portal name.'";
-    exit 1;
+    return 1;
   fi
-  path="${ports[$1]}";
-  if [ -z $path ]; then
+
+  portPath="";
+  for key in ${(k)ports}; do
+    betterKey="${key#\"}"
+    betterKey="${betterKey%\"}"
+    if [[ "$betterKey" == "$1" ]]; then
+      portPath="$ports[$key]";
+    fi
+  done
+
+  if [ -z $portPath ]; then
     echo "echo 'no such portal:' ${1}";
-    exit 1;
+    return 1;
   fi
-  echo "cd $path";
+
+  echo "cd $portPath";
 }
 
 function _portalCreate(){
@@ -59,20 +70,31 @@ function _portalDelete(){
 }
 
 function _portalList(){
+  source $portalScriptPath;
+
   if [[ -z $1 ]]; then
-    for key in "${!ports[@]}"; do
-      echo -e "\e[33m$key\e[0m ${ports[$key]}";
+    # for key in "${!ports[@]}"; do
+    #   echo -e "\e[33m$key\e[0m ${ports[$key]}";
+    # done
+    for key in ${(k)ports}; do
+      echo -e "\e[33m$key\e[0m $ports[$key]";
     done
   else
-    path="${ports[$1]}";
-    if [ -z $path ]; then
+    portPath="";
+    for key in ${(k)ports}; do
+      betterKey="${key#\"}"
+      betterKey="${betterKey%\"}"
+      if [[ "$betterKey" == "$1" ]]; then
+        portPath="$ports[$key]";
+      fi
+    done
+    if [ -z $portPath ]; then
       echo "no such portal: $1";
-      exit 1;
+      return 1;
     fi
-    echo "$path";
+    echo "$portPath";
   fi
 }
-
 
 function portal(){
   if [[ $1 == "create" ]]; then
