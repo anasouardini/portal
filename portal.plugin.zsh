@@ -1,6 +1,6 @@
 #!/bin/env zsh
 
-pluginPath="$HOME/.local/share/zsh/plugins/portal/portal.plugin.zsh";
+pluginPath="$HOME/.local/share/zap/plugins/portal/portal.plugin.zsh";
 
 # # set aliases
 # function pc(){
@@ -40,7 +40,7 @@ function _portalJump(){
   source $portalScriptPath;
   if [ -z $1 ]; then
     echo "echo 'provide a portal name.'";
-    return 1;
+    # return 1;
   fi
 
   portPath="";
@@ -54,7 +54,7 @@ function _portalJump(){
 
   if [ -z $portPath ]; then
     echo "echo 'no such portal:' ${1}";
-    return 1;
+    # return 1;
   fi
 
   echo "cd $portPath";
