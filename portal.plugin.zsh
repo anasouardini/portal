@@ -3,21 +3,7 @@
 pluginPath="$HOME/.local/share/zap/plugins/portal/portal.plugin.zsh";
 
 # # set aliases
-# function pc(){
-#   bash $pluginPath create $1 $(pwd);
-# }
-function pj(){
-  eval $(zsh $pluginPath jump $1);
-}
-# function pd(){
-#   bash $pluginPath $1;
-# }
-# function pl(){
-#   bash $pluginPath list $1;
-# }
-# function ph(){
-#   bash $pluginPath help;
-# }
+alias pj="eval $(zsh $pluginPath jump $1)";
 
 # portalScriptPath="$(pwd)/${BASH_SOURCE[0]}";
 # portalScriptPath="$HOME/.shconf/rc/tools/portal";
