@@ -77,5 +77,5 @@ elif [[ $1 == "delete" ]]; then
 elif [[ $1 == "list" ]]; then
   portalList $2
 elif [[ $1 == "help" ]]; then
-  echo "options: create | jump | delete | list";
+  echo "options: create (pc) | jump (pj) | delete (pd) | list (pl) | help (ph)";
 fi
