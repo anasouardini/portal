@@ -1,34 +1,52 @@
 #!/bin/env sh
 
-# portalScriptPath="$(pwd)/${BASH_SOURCE[0]}";
-portalScriptPath="$HOME/.shconf/rc/tools/portal";
+# set aliases
+function pc(){
+  bash "$HOME/.shconf/rc/tools/portal" create $1 $(pwd);
+}
+function pj(){
+  eval $(bash "$HOME/.shconf/rc/tools/portal" jump $1);
+}
+function pd(){
+  bash "$HOME/.shconf/rc/tools/portal" delete $1;
+}
+function pl(){
+  bash "$HOME/.shconf/rc/tools/portal" list $1;
+}
+function ph(){
+  bash "$HOME/.shconf/rc/tools/portal" help;
+}
 
-declare -A ports;
-# -- ports --
-ports["vocaverse"]="/home/venego/home/dev/desktop/lang";
-ports["usb"]="/media/usb";
-ports["lang"]="/home/venego/home/dev/desktop/lang";
-ports["resume"]="/home/venego/home/docs/resume";
-ports["portfolio"]="/home/venego/home/dev/web/portfolio-projects/front/astro/portfolioSite";
-ports["weblab"]="/home/venego/home/dev/web/lab";
-ports["lab"]="/home/venego/home/dev/lab";
-ports["smartteam"]="/home/venego/home/dev/web/portfolio-projects/full/smartTeam";
-ports["snipshare"]="/home/venego/home/dev/web/portfolio-projects/full/snipshare";
-ports["dbstudio"]="/home/venego/home/dev/web/db-studio";
-ports["notes"]="/home/venego/home/notes";
-ports["sy4"]="/home/venego/home/dev/web/automation/scrapeyard-v4";
-ports["sy"]="/home/venego/home/dev/web/automation/scrapeyard";
-ports["down"]="/home/venego/Downloads";
-ports["random"]="/home/venego/home/random";
-ports["config"]="/home/venego/.config";
+
+# portalScriptPath="$(pwd)/${BASH_SOURCE[0]}";
+# portalScriptPath="$HOME/.shconf/rc/tools/portal";
+sharedPath="$HOME/.local/share";
+portalScriptPath="${sharedPath}/portals";
+
+## make sure portals exist
+if [[ ! -d $sharedPath ]]; then
+  mkdir -p $sharedPath;
+fi
+if [[ ! -f $portalScriptPath ]]; then
+  touch $portalScriptPath;
+  echo -e "declare -A ports" > $portalScriptPath;
+fi
+
+## source portals
+source $portalScriptPath;
 
 function portalJump(){
   path="${ports[$1]}";
+  if [ -z $path ]; then
+    echo "echo 'no such portal:' ${1}";
+    exit 1;
+  fi
   echo "cd $path";
 }
 
 function portalCreate(){
-  sed -i '0,/-- ports --/{s|-- ports --|-- ports --\nports\['\""$1"\"'\]='"\"$2\""';|}' $portalScriptPath;
+  # sed -i '0,/-- ports --/{s|-- ports --|-- ports --\nports\['\""$1"\"'\]='"\"$2\""';|}' $portalScriptPath;
+  echo "ports[\"$1\"]=\"$2\"" >> $portalScriptPath;
 }
 
 function portalDelete(){
@@ -42,6 +60,10 @@ function portalList(){
     done
   else
     path="${ports[$1]}";
+    if [ -z $path ]; then
+      echo "no such portal: $1";
+      exit 1;
+    fi
     echo "$path";
   fi
 }
@@ -54,6 +76,6 @@ elif [[ $1 == "delete" ]]; then
   portalDelete $2
 elif [[ $1 == "list" ]]; then
   portalList $2
-else
+elif [[ $1 == "help" ]]; then
   echo "options: create | jump | delete | list";
 fi
