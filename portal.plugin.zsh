@@ -40,7 +40,7 @@ function _portalJump(){
     # return 1;
   fi
 
-  echo "cd $portPath";
+  # echo "cd $portPath";
   cd $portPath;
 }
 
