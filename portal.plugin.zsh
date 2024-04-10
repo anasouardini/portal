@@ -1,6 +1,6 @@
 #!/bin/env zsh
 
-pluginPath="$HOME/.local/share/zap/plugins/portal/portal.plugin.zsh";
+# pluginPath="$HOME/.local/share/zap/plugins/portal/portal.plugin.zsh";
 
 # portalScriptPath="$(pwd)/${BASH_SOURCE[0]}";
 # portalScriptPath="$HOME/.shconf/rc/tools/portal";
@@ -93,3 +93,10 @@ function portal(){
     echo "options: create (pc) | jump (pj) | delete (pd) | list (pl) | help (ph)";
   fi
 }
+
+# aliases
+alias ph="portal help";
+alias pc="portal create";
+alias pj="portal jump";
+alias pd="portal delete";
+alias pl="portal list";
