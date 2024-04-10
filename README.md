@@ -3,7 +3,7 @@
 A very basic script for jumping to/from paths without having to do write the whole path, open multiple terminal sessions or (god forbid) do a file system search using `fzf`.
 
 # install
-Run: `plug anasouardini/portal`
+In your `zsh` session, with `zsh-zap` installed, run: `plug anasouardini/portal`
 
 # usage
 If you type `ph` you'll get available options that look like this:
