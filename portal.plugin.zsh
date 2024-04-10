@@ -2,9 +2,6 @@
 
 pluginPath="$HOME/.local/share/zap/plugins/portal/portal.plugin.zsh";
 
-# # set aliases
-alias pj="eval $(zsh $pluginPath jump $1)";
-
 # portalScriptPath="$(pwd)/${BASH_SOURCE[0]}";
 # portalScriptPath="$HOME/.shconf/rc/tools/portal";
 sharedPath="$HOME/.local/share";
@@ -44,6 +41,7 @@ function _portalJump(){
   fi
 
   echo "cd $portPath";
+  cd $portPath;
 }
 
 function _portalCreate(){
