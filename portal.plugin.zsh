@@ -64,6 +64,7 @@ function _portalList(){
       echo -e "\e[33m$key\e[0m $ports[$key]";
     done
   else
+
     portPath="";
     for key in ${(k)ports}; do
       betterKey="${key#\"}"
@@ -82,7 +83,7 @@ function _portalList(){
 
 function portal(){
   if [[ $1 == "create" ]]; then
-    _portalCreate $2 $3;
+    _portalCreate $2 $(pwd);
   elif [[ $1 == "jump" ]]; then
     _portalJump $2
   elif [[ $1 == "delete" ]]; then
