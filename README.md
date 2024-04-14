@@ -1,6 +1,6 @@
 # Portal (zsh-zap plugin)
 
-A very basic script for jumping to/from paths without having to do write the whole path, open multiple terminal sessions or do a file system search using `fzf`.
+A very basic script for jumping to/from paths without having to write the whole path, open multiple terminal sessions or do a file system search using `fzf`.
 
 # install
 In your `zsh` session, with `zsh-zap` installed, run: `plug anasouardini/portal`
