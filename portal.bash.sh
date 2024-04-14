@@ -1,4 +1,5 @@
-#!/bin/env bash
+
+#!/bin/env zsh
 
 # pluginPath="$HOME/.local/share/zap/plugins/portal/portal.plugin.zsh";
 
@@ -94,6 +95,47 @@ function _portalList(){
   fi
 }
 
+function _portalDynamic(){
+  targetCommand=$1;
+  targetPath=$2;
+
+  if [[ ! -z $targetPath && ! -d $targetPath ]];then
+    # guess the path
+    guessedPaths=$(command cat $portalHistoryPath | command fzf -f $targetPath)
+    if [[ ! -z $guessedPaths ]]; then
+      firstGuessedPath=$(echo $guessedPaths | command head -n 1)
+      # echo $firstGuessedPath
+      # echo "path found in history.";
+      if [[ $targetCommand == "cd" ]]; then
+        builtin cd $firstGuessedPath;
+      else
+        command $targetCommand $firstGuessedPath;
+      fi
+    else
+      echo "path is not valid and it wasn't found in history of portals.";
+      echo "portals-history at ${portalHistoryPath}";
+    fi
+  else
+    parsedTargetPath=$(realpath ~); # if it's empty, set it to home
+    if [[ ! -z $targetPath ]]; then
+      parsedTargetPath=$(realpath $targetPath 2> /dev/null);
+    fi
+
+    found=$(cat $portalHistoryPath | grep -x "${parsedTargetPath}");
+    if [[ -z $found ]]; then
+      # store the path
+      # echo "new path: " $parsedTargetPath;
+      _portalCreate "history" $parsedTargetPath;
+    fi
+
+    if [[ $targetCommand == "cd" ]]; then
+      builtin cd $parsedTargetPath;
+    else
+      command $targetCommand $parsedTargetPath;
+    fi
+  fi
+}
+
 function portal(){
   if [[ $1 == "create" ]]; then
     _portalCreate $2 $(pwd);
@@ -105,8 +147,10 @@ function portal(){
     _portalDelete
   elif [[ $1 == "list" ]]; then
     _portalList $2
+  elif [[ $1 == "dynamic" ]]; then
+    _portalDynamic $2 $3
   elif [[ $1 == "help" ]]; then
-    echo "options: create (pc) | jump (pj) | delete (pd) | empty (pe) | list (pl) | help (ph)";
+    echo "options: create (pc) | jump (pj) | delete (pd) | empty (pe) | list (pl) | dynamic (pd) | help (ph)";
   fi
 }
 
@@ -117,34 +161,6 @@ alias pj="portal jump";
 alias pd="portal delete";
 alias pe="portal empty";
 alias pl="portal list";
-alias plh="command cat ${portalHistoryPath}";
-
-function cd(){
-  if [[ ! -z $1 && ! -d $1 ]];then
-    # guess the path
-    guessedPaths=$(command cat $portalHistoryPath | command fzf -f $1)
-    if [[ ! -z $guessedPaths ]]; then
-      firstGuessedPath=$(echo $guessedPaths | command head -n 1)
-      # echo $firstGuessedPath
-      # echo "path found in history.";
-      builtin cd $firstGuessedPath;
-    else
-      echo "path is not valid and it wasn't found in history of portals.";
-      echo "portals-history at ${portalHistoryPath}";
-    fi
-  else
-    targetPath=$(realpath ~); # if it's empty, set it to home
-    if [[ ! -z $1 ]]; then
-      targetPath=$(realpath $1 2> /dev/null);
-    fi
-
-    found=$(cat $portalHistoryPath | grep -x "${targetPath}");
-    if [[ -z $found ]]; then
-      # store the path
-      # echo "new path: " $targetPath;
-      _portalCreate "history" $targetPath;
-    fi
-
-    builtin cd $targetPath;
-  fi
-}
+alias pd="portal dynamic";
+alias cdh="command cat ${portalHistoryPath}";
+alias cd="pd 'cd'"
