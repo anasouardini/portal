@@ -97,11 +97,11 @@ function portal(){
   elif [[ $1 == "list" ]]; then
     _portalList $2
   elif [[ $1 == "help" ]]; then
-    echo "options: create (pc) | jump (pj) | delete (pd) | list (pl) | help (ph)";
+    echo "options: create (pc) | jump (pj) | delete (pd) | empty (pe) | list (pl) | help (ph)";
   fi
 }
 
-# TODO: ask the user if he wants the aliases
+# TODO: maybe ask the user if he wants the aliases?
 
 # aliases
 alias ph="portal help";
