@@ -6,6 +6,12 @@ A very basic script for jumping to/from paths without having to write the whole 
 In your `zsh` session, with `zsh-zap` installed, run: `plug anasouardini/portal`
 
 # usage
+
+## dynamically
+`Portal` will make an alias for `cd` that records all the paths you visit and then figure out which one you want to visit if you type an invalid path.
+
+## manually 
+
 If you type `ph` you'll get available options that look like this:
 `options: create (pc) | jump (pj) | delete (pd) | empty (pe) | list (pl) | help (ph)`
 
