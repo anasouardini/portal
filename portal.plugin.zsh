@@ -1,5 +1,3 @@
-#!/bin/env zsh
-
 # pluginPath="$HOME/.local/share/zap/plugins/portal/portal.plugin.zsh";
 
 # portalScriptPath="$(pwd)/${BASH_SOURCE[0]}";
@@ -97,6 +95,10 @@ function _portalList(){
 function _portalDynamic(){
   targetCommand=$1;
   targetPath=$2;
+  if [[ $targetPath == "-" ]]; then
+    builtin cd -;
+    return 0;
+  fi
 
   if [[ ! -z $targetPath && ! -d $targetPath ]];then
     # guess the path
@@ -114,25 +116,26 @@ function _portalDynamic(){
       echo "path is not valid and it wasn't found in history of portals.";
       echo "portals-history at ${portalHistoryPath}";
     fi
-  else
-    parsedTargetPath=$(realpath ~); # if it's empty, set it to home
-    if [[ ! -z $targetPath ]]; then
-      parsedTargetPath=$(realpath $targetPath 2> /dev/null);
-    fi
-
-    found=$(cat $portalHistoryPath | grep -x "${parsedTargetPath}");
-    if [[ -z $found ]]; then
-      # store the path
-      # echo "new path: " $parsedTargetPath;
-      _portalCreate "history" $parsedTargetPath;
-    fi
-
-    if [[ $targetCommand == "cd" ]]; then
-      builtin cd $parsedTargetPath;
-    else
-      command $targetCommand $parsedTargetPath;
-    fi
+    return 0;
   fi
+
+  parsedTargetPath=$(realpath ~); # if it's empty, set it to home
+  if [[ ! -z $targetPath ]]; then
+    parsedTargetPath=$(realpath $targetPath 2> /dev/null);
+  fi
+
+  found=$(cat $portalHistoryPath | grep -x "${parsedTargetPath}");
+  if [[ -z $found ]]; then
+    # store the path
+    # echo "new path: " $parsedTargetPath;
+    _portalCreate "history" $parsedTargetPath;
+  fi
+
+  if [[ $targetCommand == "cd" ]]; then
+    builtin cd $parsedTargetPath;
+    return 0;
+  fi
+  command $targetCommand $parsedTargetPath;
 }
 
 function portal(){
