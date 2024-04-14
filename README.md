@@ -10,6 +10,8 @@ In your `zsh` session, with `zsh-zap` installed, run: `plug anasouardini/portal`
 ## dynamically
 `Portal` will make an alias for `cd` that records all the paths you visit and then figure out which one you want to visit if you type an invalid path.
 
+https://github.com/anasouardini/portal/assets/114059811/ce55bfeb-1da1-4286-9645-61b018d3b1ba
+
 ## manually 
 
 If you type `ph` you'll get available options that look like this:
