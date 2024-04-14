@@ -16,6 +16,9 @@ if [[ ! -f $portalScriptPath ]]; then
   touch $portalScriptPath;
   echo -e "declare -A ports" > $portalScriptPath;
 fi
+if [[ ! -f $portalHistoryPath ]]; then
+  touch $portalHistoryPath;
+fi
 
 ## source portals
 # source $portalScriptPath;
@@ -106,8 +109,6 @@ function portal(){
     echo "options: create (pc) | jump (pj) | delete (pd) | empty (pe) | list (pl) | help (ph)";
   fi
 }
-
-# TODO: maybe ask the user if he wants the aliases?
 
 # aliases
 alias ph="portal help";

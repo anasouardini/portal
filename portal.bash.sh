@@ -110,8 +110,6 @@ function portal(){
   fi
 }
 
-# TODO: maybe ask the user if he wants the aliases?
-
 # aliases
 alias ph="portal help";
 alias pc="portal create";
