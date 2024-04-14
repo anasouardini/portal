@@ -50,7 +50,11 @@ function _portalCreate(){
 }
 
 function _portalDelete(){
-  sed -i '/^ports\[\"'"$1"'\"\]/d' $portalScriptPath;
+  if [[ -z $1 ]]; then
+    sed -i '/^ports\[.*/g' $portalScriptPath;
+  else
+    sed -i '/^ports\[\"'"$1"'\"\]/d' $portalScriptPath;
+  fi
 }
 
 function _portalList(){
@@ -88,6 +92,8 @@ function portal(){
     _portalJump $2
   elif [[ $1 == "delete" ]]; then
     _portalDelete $2
+  elif [[ $1 == "empty" ]]; then
+    _portalDelete
   elif [[ $1 == "list" ]]; then
     _portalList $2
   elif [[ $1 == "help" ]]; then
@@ -95,9 +101,12 @@ function portal(){
   fi
 }
 
+# TODO: ask the user if he wants the aliases
+
 # aliases
 alias ph="portal help";
 alias pc="portal create";
 alias pj="portal jump";
 alias pd="portal delete";
+alias pe="portal empty";
 alias pl="portal list";
