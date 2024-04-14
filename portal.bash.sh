@@ -6,6 +6,7 @@
 # portalScriptPath="$HOME/.shconf/rc/tools/portal";
 sharedPath="$HOME/.local/share";
 portalScriptPath="${sharedPath}/portals";
+portalHistoryPath="${sharedPath}/portals-history";
 
 ## make sure portals exist
 if [[ ! -d $sharedPath ]]; then
@@ -14,6 +15,9 @@ fi
 if [[ ! -f $portalScriptPath ]]; then
   touch $portalScriptPath;
   echo -e "declare -A ports" > $portalScriptPath;
+fi
+if [[ ! -f $portalHistoryPath ]]; then
+  touch $portalHistoryPath;
 fi
 
 ## source portals
@@ -45,8 +49,13 @@ function _portalJump(){
 }
 
 function _portalCreate(){
-  # sed -i '0,/-- ports --/{s|-- ports --|-- ports --\nports\['\""$1"\"'\]='"\"$2\""';|}' $portalScriptPath;
-  echo "ports[\"$1\"]=\"$2\"" >> $portalScriptPath;
+  if [[ $1 == "history" ]];then
+    # echo "history +=(\"$2\")" >> $portalScriptPath;
+    echo -e $2 >> $portalHistoryPath
+  else
+    # sed -i '0,/-- ports --/{s|-- ports --|-- ports --\nports\['\""$1"\"'\]='"\"$2\""';|}' $portalScriptPath;
+    echo "ports[\"$1\"]=\"$2\"" >> $portalScriptPath;
+  fi
 }
 
 function _portalDelete(){
@@ -110,3 +119,34 @@ alias pj="portal jump";
 alias pd="portal delete";
 alias pe="portal empty";
 alias pl="portal list";
+alias plh="command cat ${portalHistoryPath}";
+
+function cd(){
+  if [[ ! -z $1 && ! -d $1 ]];then
+    # guess the path
+    guessedPaths=$(command cat $portalHistoryPath | command fzf -f $1)
+    if [[ ! -z $guessedPaths ]]; then
+      firstGuessedPath=$(echo $guessedPaths | command head -n 1)
+      # echo $firstGuessedPath
+      # echo "path found in history.";
+      builtin cd $firstGuessedPath;
+    else
+      echo "path is not valid and it wasn't found in history of portals.";
+      echo "portals-history at ${portalHistoryPath}";
+    fi
+  else
+    targetPath=$(realpath ~); # if it's empty, set it to home
+    if [[ ! -z $1 ]]; then
+      targetPath=$(realpath $1 2> /dev/null);
+    fi
+
+    found=$(cat $portalHistoryPath | grep -x "${targetPath}");
+    if [[ -z $found ]]; then
+      # store the path
+      # echo "new path: " $targetPath;
+      _portalCreate "history" $targetPath;
+    fi
+
+    builtin cd $targetPath;
+  fi
+}
