@@ -14,8 +14,7 @@ https://github.com/anasouardini/portal/assets/114059811/ce55bfeb-1da1-4286-9645-
 
 ## manually 
 
-If you type `ph` you'll get available options that look like this:
-`options: create (pc) | jump (pj) | remove (pr) | empty (pe) | list (pl) | dynamic (pd) | help (ph)`
+`Portal` also gives you the option to manage your paths/portals manually and assign exact names to retrieve them later. You can also remove and clean the entire list of paths if you want.
 
 https://github.com/anasouardini/portal/assets/114059811/b6695143-b38d-4daa-ac38-3ec4d6400df2
 
