@@ -143,7 +143,7 @@ function portal(){
     _portalCreate $2 $(pwd);
   elif [[ $1 == "jump" ]]; then
     _portalJump $2
-  elif [[ $1 == "delete" ]]; then
+  elif [[ $1 == "remove" ]]; then
     _portalDelete $2
   elif [[ $1 == "empty" ]]; then
     _portalDelete
@@ -152,17 +152,23 @@ function portal(){
   elif [[ $1 == "dynamic" ]]; then
     _portalDynamic $2 $3
   elif [[ $1 == "help" ]]; then
-    echo "options: create (pc) | jump (pj) | delete (pd) | empty (pe) | list (pl) | dynamic (pd) | help (ph)";
+    echo "options: create (pc) | jump (pj) | remove (pr) | empty (pe) | list (pl) | dynamic (pd) | help (ph)";
+  else
+    echo "options: create (pc) | jump (pj) | remove (pr) | empty (pe) | list (pl) | dynamic (pd) | help (ph)";
   fi
 }
 
-# aliases
+# aliases for manual teleportation
 alias ph="portal help";
 alias pc="portal create";
 alias pj="portal jump";
-alias pd="portal delete";
+alias pr="portal remove";
 alias pe="portal empty";
 alias pl="portal list";
+
+# aliases for dynamic teleportation
 alias pd="portal dynamic";
+
+# special alias for cd (dynamic teleportation)
 alias cdh="command cat ${portalHistoryPath}";
 alias cd="pd 'cd'"
