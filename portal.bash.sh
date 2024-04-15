@@ -138,6 +138,29 @@ function _portalDynamic(){
   command $targetCommand $parsedTargetPath;
 }
 
+# todo: add "px", execute command on the selected portal
+helpMenu=(
+  "Usage:"
+  " "
+  "    portal [cmd] [path/option]"
+  " "
+  "Menu:"
+  " "
+  "    ph, portal help           prints this help menu"
+  "    pc, portal create         adds curernt path to db with the provided name"
+  "    pj, portal jump           jumps to the provided portal name"
+  "    pr, portal remove         removes the provided portal name"
+  "    pe, portal empty          removes all portals"
+  "    pl, portal list           list all portals"
+  " "
+  "    pd, portal dynamic        dynamicly figure out the path from a vague guess,"
+  "                              \`pd [cmd] [path]\` runs the [cmd] and passes the"
+  "                              [path] to it"
+  "       e.g: \`pd stat fig\`     runs stat on '~/.config'"
+  "       note: \`pd cd fig\`      is already under the alias 'cd', so you can just"
+  "                              run \`cd fig\` as you would normally"
+);
+
 function portal(){
   if [[ $1 == "create" ]]; then
     _portalCreate $2 $(pwd);
@@ -152,9 +175,13 @@ function portal(){
   elif [[ $1 == "dynamic" ]]; then
     _portalDynamic $2 $3
   elif [[ $1 == "help" ]]; then
-    echo "options: create (pc) | jump (pj) | remove (pr) | empty (pe) | list (pl) | dynamic (pd) | help (ph)";
+    for line in $helpMenu; do
+      echo $line;
+    done
   else
-    echo "options: create (pc) | jump (pj) | remove (pr) | empty (pe) | list (pl) | dynamic (pd) | help (ph)";
+    for line in $helpMenu; do
+      echo $line;
+    done
   fi
 }
 
