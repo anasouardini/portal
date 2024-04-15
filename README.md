@@ -15,7 +15,7 @@ https://github.com/anasouardini/portal/assets/114059811/ce55bfeb-1da1-4286-9645-
 ## manually 
 
 If you type `ph` you'll get available options that look like this:
-`options: create (pc) | jump (pj) | delete (pd) | empty (pe) | list (pl) | help (ph)`
+`options: create (pc) | jump (pj) | remove (pr) | empty (pe) | list (pl) | dynamic (pd) | help (ph)`
 
 https://github.com/anasouardini/portal/assets/114059811/b6695143-b38d-4daa-ac38-3ec4d6400df2
 
