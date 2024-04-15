@@ -21,7 +21,10 @@ fi
 ## source portals
 # source $portalScriptPath;
 
-function _portalJump(){
+function _portalExecute(){
+  targetCommand=$1
+  targetPath=$2
+
   source $portalScriptPath;
   if [ -z $1 ]; then
     echo "echo 'provide a portal name.'";
@@ -32,18 +35,21 @@ function _portalJump(){
   for key in ${(k)ports}; do
     betterKey="${key#\"}"
     betterKey="${betterKey%\"}"
-    if [[ "$betterKey" == "$1" ]]; then
+    if [[ "$betterKey" == "$targetPath" ]]; then
       portPath="$ports[$key]";
     fi
   done
 
   if [ -z $portPath ]; then
-    echo "echo 'no such portal:' ${1}";
+    echo "echo 'no such portal:' ${targetPath}";
     # return 1;
   fi
 
-  # echo "cd $portPath";
-  cd $portPath;
+  if [[ $targetCommand == "cd" ]]; then
+    builtin cd $parsedTargetPath;
+    return 0;
+  fi
+  command $targetCommand $parsedTargetPath;
 }
 
 function _portalCreate(){
@@ -138,6 +144,30 @@ function _portalDynamic(){
   command $targetCommand $parsedTargetPath;
 }
 
+function _portalBind(){
+  targetCommand=$1;
+  targetAlias=$2;
+  
+  if [[ -z $targetAlias ]]; then
+    echo "echo 'provide an alias'";
+    return 1;
+  fi
+
+  if [[ -z $targetCommand ]]; then
+    echo "echo 'provide a command'";
+    return 1;
+  fi
+
+  cmdList=("help" "list" "create" "jumpt" "remove" "empty" "dynamic");
+  if [[ ! " ${cmdList[*]} " =~ " ${targetCommand} " ]]; then
+    echo "echo 'unknown command: ${targetCommand}'";
+    return 1;
+  fi
+
+  echo "alias p${targetAlias}='portal ${targetCommand}'" >> $portalScriptPath;
+  source $portalScriptPath;
+}
+
 # todo: add "px", execute command on the selected portal
 helpMenu=(
   "Usage:"
@@ -147,38 +177,60 @@ helpMenu=(
   "commands:"
   " "
   "    help           prints this help menu"
+  "    bind           add an alias for a command: 'bind [command] [alias]'"
+  "                   e.g: 'portal bind create c' sets 'alias pc='portal create''"
   " "
-  "    Manually:"
+  "    ====== Implicit:"
+  " "
+  "      Portal implicitly tracks all paths you visit and then figures out which"
+  "      one you want to visit if you type an invalid/vague path next time."
+  " "
+  "      cd             a default alias so that you don't have to constantly"
+  "                     think about the tool while browsing your files"
+  "                     long version: 'portal cd [path/guess]'"
+  "      cdh            lists the history of paths that Portal collected"
+  "      dynamic        dynamically figures out the path from a vague guess."
+  "                     use 'bind' to set an alias for it like 'pd'."
+  "                     'pd [cmd] [guess/path]' runs the [cmd] and passes"
+  "                     the [guess/path] to it as an argument."
+  " "
+  "         e.g: 'pd stat fig'     runs 'stat' on '~/.config'"
+  "         note: 'pd cd fig'      is already under the alias 'cd', so you can just"
+  "                                run 'cd fig' as you would normally"
+  " "
+  "    ====== Explicit:"
+  " "
+  "      You might want to directly go to a path using a certain name that you"
+  "      explicitly chose, in which case you can use the explicit method."
   " "
   "      create         adds current path to db with the provided name"
   "      jump           jumps to the provided portal name"
   "      remove         removes the provided portal name"
   "      empty          removes all portals"
-  "      list           list all portals"
-  " "
-  "    Dynamically:"
-  " "
-  "      dynamic        you can also type \`pd\` instead of \`portal dynamic\`"
-  "                     dynamically figure out the path from a vague guess,"
-  "                     \`pd [cmd] [guess/path]\` runs the [cmd] and passes"
-  "                     the [guess/path] to it"
-  " "
-  "         e.g: \`pd stat fig\`     runs \`stat\` on '~/.config'"
-  "         note: \`pd cd fig\`      is already under the alias 'cd', so you can just"
-  "                                run \`cd fig\` as you would normally"
+  "      list           lists all portals, unless you pass a portal name"
+  "                     in which case it only lists that portal"
+  "                     e.g: 'du -h \$(portal list config)'"
+  "      execute        runs command on the selected portal"
+  "                     e.g: 'portal execute tree [portal]' runs 'tree' on"
+  "                     the selected portal"
+  "                     'portal jump' runs 'portal execute cd [portal]'"
 );
 
 function portal(){
   if [[ $1 == "create" ]]; then
     _portalCreate $2 $(pwd);
   elif [[ $1 == "jump" ]]; then
-    _portalJump $2
+    _portalExecute "cd" $2
   elif [[ $1 == "remove" ]]; then
     _portalDelete $2
   elif [[ $1 == "empty" ]]; then
     _portalDelete
   elif [[ $1 == "list" ]]; then
     _portalList $2
+  elif [[ $1 == "execute" ]]; then
+    _portalExecute $2
+  elif [[ $1 == "bind" ]]; then
+    _portalBind $2 $3
   elif [[ $1 == "dynamic" ]]; then
     _portalDynamic $2 $3
   elif [[ $1 == "help" ]]; then
@@ -193,15 +245,15 @@ function portal(){
 }
 
 # aliases for manual teleportation
-alias ph="portal help";
-alias pc="portal create";
-alias pj="portal jump";
-alias pr="portal remove";
-alias pe="portal empty";
-alias pl="portal list";
+# alias ph="portal help";
+# alias pc="portal create";
+# alias pj="portal jump";
+# alias pr="portal remove";
+# alias pe="portal empty";
+# alias pl="portal list";
 
 # aliases for dynamic teleportation
-alias pd="portal dynamic";
+# alias pd="portal dynamic";
 
 # special alias for cd (dynamic teleportation)
 alias cdh="command cat ${portalHistoryPath}";
