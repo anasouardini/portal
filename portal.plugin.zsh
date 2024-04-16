@@ -1,5 +1,15 @@
 # pluginPath="$HOME/.local/share/zap/plugins/portal/portal.plugin.zsh";
 
+whatShell='';
+if [ -n "$BASH_VERSION" ]; then
+    whatShell="bash";
+elif [ -n "$ZSH_VERSION" ]; then
+    whatShell="zsh";
+else
+    echo "unknown shell, use either bash or zsh";
+    return 0;
+fi
+
 # portalScriptPath="$(pwd)/${BASH_SOURCE[0]}";
 # portalScriptPath="$HOME/.shconf/rc/tools/portal";
 sharedPath="$HOME/.local/share";
@@ -144,17 +154,44 @@ function _portalDynamic(){
   command $targetCommand $parsedTargetPath;
 }
 
+function interactivePortal(){
+  targetLine="";
+  if [[ $whatShell == "bash" ]];then
+    targetLine=$BASH_COMMAND;
+  elif [[ $whatShell == "zsh" ]];then
+    targetLine=$BUFFER;
+  fi
+
+  if [[ ! $targetLine == "cd "* ]]; then
+    return 0;
+  fi
+
+  targetLine=$(echo $targetLine | sed 's/cd //');
+
+  chosenPath=$(command cat $portalHistoryPath | command fzf --query="$targetLine");
+
+  export BUFFER="cd $chosenPath";
+  zle accept-line
+
+  # xdotool type $chosenPath;
+}
+
 function _portalBind(){
   targetCommand=$1;
   targetAlias=$2;
   
   if [[ -z $targetAlias ]]; then
-    echo "echo 'provide an alias'";
+    echo "provide an alias";
+    return 1;
+  fi
+
+  if [[ $targetAlias == *" "* ]]; then
+    echo "alias must not contain spaces";
     return 1;
   fi
 
   if [[ -z $targetCommand ]]; then
-    echo "echo 'provide a command'";
+    echo "provide a command";
     return 1;
   fi
 
@@ -258,3 +295,11 @@ function portal(){
 # special alias for cd (dynamic teleportation)
 alias cdh="command cat ${portalHistoryPath}";
 alias cd="portal dynamic 'cd'"
+
+if [[ $whatShell == "zsh" ]]; then
+  zle -N interactivePortal;
+  bindkey '^p' interactivePortal;
+elif [[ $whatShell == "bash" ]]; then
+  #* bash is full of quircks in this regard.
+  # bind -x '"\C-p":"interactivePortal\n"';
+fi
