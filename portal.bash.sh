@@ -31,12 +31,12 @@ function _portalExecute(){
     # return 1;
   fi
 
-  portPath="";
+  portalPath="";
   for key in ${(k)ports}; do
     betterKey="${key#\"}"
     betterKey="${betterKey%\"}"
     if [[ "$betterKey" == "$targetPath" ]]; then
-      portPath="$ports[$key]";
+      portalPath="$ports[$key]";
     fi
   done
 
@@ -46,10 +46,10 @@ function _portalExecute(){
   fi
 
   if [[ $targetCommand == "cd" ]]; then
-    builtin cd $parsedTargetPath;
+    builtin cd $portalPath;
     return 0;
   fi
-  command $targetCommand $parsedTargetPath;
+  command $targetCommand $portalPath;
 }
 
 function _portalCreate(){
@@ -164,7 +164,7 @@ function _portalBind(){
     return 1;
   fi
 
-  echo "alias p${targetAlias}='portal ${targetCommand}'" >> $portalScriptPath;
+  echo "alias ${targetAlias}='portal ${targetCommand}'" >> $portalScriptPath;
   source $portalScriptPath;
 }
 
@@ -228,7 +228,7 @@ function portal(){
   elif [[ $1 == "list" ]]; then
     _portalList $2
   elif [[ $1 == "execute" ]]; then
-    _portalExecute $2
+    _portalExecute $2 $3
   elif [[ $1 == "bind" ]]; then
     _portalBind $2 $3
   elif [[ $1 == "dynamic" ]]; then
@@ -257,4 +257,4 @@ function portal(){
 
 # special alias for cd (dynamic teleportation)
 alias cdh="command cat ${portalHistoryPath}";
-alias cd="pd 'cd'"
+alias cd="portal dynamic 'cd'"
