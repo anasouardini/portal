@@ -118,12 +118,16 @@ function _portalDynamic(){
 
   if [[ ! -z $targetPath && ! -d $targetPath ]];then
     # guess the path
-    guessedPaths=$(command cat $portalHistoryPath | command fzf -f $targetPath)
+    guessedPaths=$(command cat $portalHistoryPath | command fzf -f $targetPath);
+    if [[ $targetCommand == 'cdc' ]];then
+      guessedPaths=$(command cat $portalHistoryPath | command fzf -f "$(pwd) ${targetPath}")
+    fi
+
     if [[ ! -z $guessedPaths ]]; then
       firstGuessedPath=$(echo $guessedPaths | command head -n 1)
       # echo $firstGuessedPath
       # echo "path found in history.";
-      if [[ $targetCommand == "cd" ]]; then
+      if [[ $targetCommand == "cd" || $targetCommand == "cdc" ]]; then
         builtin cd $firstGuessedPath;
       else
         command $targetCommand $firstGuessedPath;
@@ -135,6 +139,7 @@ function _portalDynamic(){
     return 0;
   fi
 
+  # this is when the path is valid (no fuzzy guessing)
   parsedTargetPath=$(realpath ~); # if it's empty, set it to home
   if [[ ! -z $targetPath ]]; then
     parsedTargetPath=$(realpath $targetPath 2> /dev/null);
@@ -147,7 +152,7 @@ function _portalDynamic(){
     _portalCreate "history" $parsedTargetPath;
   fi
 
-  if [[ $targetCommand == "cd" ]]; then
+  if [[ $targetCommand == "cd" || $targetCommand == "cdc" ]]; then
     builtin cd $parsedTargetPath;
     return 0;
   fi
@@ -294,7 +299,8 @@ function portal(){
 
 # special alias for cd (dynamic teleportation)
 alias cdh="command cat ${portalHistoryPath}";
-alias cd="portal dynamic 'cd'"
+alias cd="portal dynamic 'cd'";
+alias cdc="portal dynamic 'cdc'";
 
 if [[ $whatShell == "zsh" ]]; then
   zle -N interactivePortal;
