@@ -1,5 +1,6 @@
 # pluginPath="$HOME/.local/share/zap/plugins/portal/portal.plugin.zsh";
 
+#### setp
 whatShell='';
 if [ -n "$BASH_VERSION" ]; then
     whatShell="bash";
@@ -16,6 +17,9 @@ sharedPath="$HOME/.local/share";
 portalScriptPath="${sharedPath}/portals";
 portalHistoryPath="${sharedPath}/portals-history";
 
+historyPointer=0;
+pathHistory=();
+
 ## make sure portals exist
 if [[ ! -d $sharedPath ]]; then
   mkdir -p $sharedPath;
@@ -29,11 +33,17 @@ if [[ ! -f $portalHistoryPath ]]; then
 fi
 
 ## source portals
-# source $portalScriptPath;
+source $portalScriptPath;
+
+function tempNotes(){
+  echo "----------- notes:";
+  echo "'cdl' lists portals, which you access when you vaguely type a path after 'cd'.";
+  echo "'cdh' lists history, which you can navigate using 'cdd' and 'cdu' or Ctrl+j and Ctrl+k.";
+}
 
 function _portalExecute(){
   targetCommand=$1
-  targetPath=$2
+  portalName=$2
 
   source $portalScriptPath;
   if [ -z $1 ]; then
@@ -45,13 +55,13 @@ function _portalExecute(){
   for key in ${(k)ports}; do
     betterKey="${key#\"}"
     betterKey="${betterKey%\"}"
-    if [[ "$betterKey" == "$targetPath" ]]; then
+    if [[ "$betterKey" == "$portalName" ]]; then
       portalPath="$ports[$key]";
     fi
   done
 
-  if [ -z $portPath ]; then
-    echo "echo 'no such portal:' ${targetPath}";
+  if [ -z $portalPath ]; then
+    echo "echo 'no such portal:' ${portalName}";
     # return 1;
   fi
 
@@ -82,7 +92,6 @@ function _portalDelete(){
 
 function _portalList(){
   source $portalScriptPath;
-
   if [[ -z $1 ]]; then
     # for key in "${!ports[@]}"; do
     #   echo -e "\e[33m$key\e[0m ${ports[$key]}";
@@ -92,20 +101,25 @@ function _portalList(){
     done
   else
 
-    portPath="";
+    portalPath="";
     for key in ${(k)ports}; do
       betterKey="${key#\"}"
       betterKey="${betterKey%\"}"
       if [[ "$betterKey" == "$1" ]]; then
-        portPath="$ports[$key]";
+        portalPath="$ports[$key]";
       fi
     done
-    if [ -z $portPath ]; then
+    if [ -z $portalPath ]; then
       echo "no such portal: $1";
       return 1;
     fi
-    echo "$portPath";
+    echo "$portalPath";
   fi
+}
+
+function listDynamicPortals(){
+  command cat ${portalHistoryPath};
+  tempNotes;
 }
 
 function _portalDynamic(){
@@ -129,6 +143,7 @@ function _portalDynamic(){
       # echo "path found in history.";
       if [[ $targetCommand == "cd" || $targetCommand == "cdc" ]]; then
         builtin cd $firstGuessedPath;
+        add_path
       else
         command $targetCommand $firstGuessedPath;
       fi
@@ -154,6 +169,7 @@ function _portalDynamic(){
 
   if [[ $targetCommand == "cd" || $targetCommand == "cdc" ]]; then
     builtin cd $parsedTargetPath;
+    add_path
     return 0;
   fi
   command $targetCommand $parsedTargetPath;
@@ -200,7 +216,7 @@ function _portalBind(){
     return 1;
   fi
 
-  cmdList=("help" "list" "create" "jumpt" "remove" "empty" "dynamic");
+  cmdList=("help" "list" "create" "jump" "remove" "empty" "dynamic");
   if [[ ! " ${cmdList[*]} " =~ " ${targetCommand} " ]]; then
     echo "echo 'unknown command: ${targetCommand}'";
     return 1;
@@ -208,6 +224,86 @@ function _portalBind(){
 
   echo "alias ${targetAlias}='portal ${targetCommand}'" >> $portalScriptPath;
   source $portalScriptPath;
+}
+
+function navigatePathHistory(){
+  direction=$1;
+  if [[ $direction == "up" ]]; then
+    if [[ $historyPointer -eq ${#pathHistory[@]} ]]; then
+      return 0;
+    fi
+    $historyPointer += 1;
+    builtin cd ${pathHistory[$historyPointer]};
+  elif [[ $direction == "down" ]]; then
+    if [[ $historyPointer -eq 0 ]]; then
+      return 0;
+    fi
+    $historyPointer += 1;
+    builtin cd ${pathHistory[$historyPointer]};
+  fi
+}
+
+##### navigating path history
+
+# Initialize an empty array to store paths
+path_list=(
+    $(pwd)
+)
+
+# Initialize a variable to keep track of the current position
+currentPathPosition=1
+
+# Function to add a path to the list
+function add_path() {
+    path_list+=$(pwd)
+    currentPathPosition=$(( ${#path_list[@]} ))
+    if [[ ${#path_list[@]} -gt 30 ]];then
+        path_list=("${path_list[@]:1}");
+        currentPathPosition=$(( ${#path_list[@]} ))
+    fi
+}
+
+# Function to navigate to the last visited path
+function cdd() {
+  if [ $currentPathPosition -gt 1 ]; then
+    currentPathPosition=$((currentPathPosition - 1));
+    previousPath="${path_list[$currentPathPosition]}";
+    # echo "previous path: ${previousPath}";
+    # echo "current pos: ${currentPathPosition}";
+    builtin cd $previousPath;
+    # export $BUFFER="$BUFFER";
+    zle accept-line;
+  else
+    echo "No previous directory in history."
+  fi
+
+  zle accept-line;
+}
+
+# Function to navigate to the next visited path
+function cdu() {
+  if [ $currentPathPosition -lt $(( ${#path_list[@]} )) ]; then
+    currentPathPosition=$((currentPathPosition + 1));
+    nextPath="${path_list[$currentPathPosition]}";
+    # echo "next path: ${nextPath}";
+    # echo "current pos: ${currentPathPosition}";
+    builtin cd $nextPath;
+    # export $BUFFER="$BUFFER";
+    zle accept-line;
+  else
+    echo "No next directory in history."
+  fi
+
+  zle accept-line;
+}
+
+function cdh() {
+  echo "pwd: $currentPathPosition";
+  for item in "${path_list[@]}"; do
+    echo "$((++index)) $item";
+  done
+
+  tempNotes;
 }
 
 # todo: add "px", execute command on the selected portal
@@ -230,7 +326,14 @@ helpMenu=(
   "      cd             a default alias so that you don't have to constantly"
   "                     think about the tool while browsing your files"
   "                     long version: 'portal cd [path/guess]'"
-  "      cdh            lists the history of paths that Portal collected"
+  "      cdc            same as 'cd' but searches in the current directory"
+  "                     you can also use keybinding 'Ctrl+p'"
+  "      cdl            lists the portals (paths) that Portal collected"
+  "      cdd            'cd' to previous path in history (shown by 'cdl')"
+  "                     you can also use keybinding 'Ctrl+j'"
+  "      cdu            'cd' to next path in history (shown by 'cdl')"
+  "                     you can also use keybinding 'Ctrl+k'"
+  "      cdh            lists history of visited paths"
   "      dynamic        dynamically figures out the path from a vague guess."
   "                     use 'bind' to set an alias for it like 'pd'."
   "                     'pd [cmd] [guess/path]' runs the [cmd] and passes"
@@ -298,13 +401,17 @@ function portal(){
 # alias pd="portal dynamic";
 
 # special alias for cd (dynamic teleportation)
-alias cdh="command cat ${portalHistoryPath}";
+alias cdl="listDynamicPortals";
 alias cd="portal dynamic 'cd'";
 alias cdc="portal dynamic 'cdc'";
 
 if [[ $whatShell == "zsh" ]]; then
   zle -N interactivePortal;
+  zle -N cdd;
+  zle -N cdu;
   bindkey '^p' interactivePortal;
+  bindkey '^j' cdd;
+  bindkey '^k' cdu;
 elif [[ $whatShell == "bash" ]]; then
   #* bash is full of quircks in this regard.
   # bind -x '"\C-p":"interactivePortal\n"';
