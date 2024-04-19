@@ -32,6 +32,9 @@ fi
 if [[ ! -f $implicitPortalsStore ]]; then
   touch $implicitPortalsStore;
 fi
+if [[ ! -f $portalBindingsStore ]]; then
+  touch $portalBindingsStore;
+fi
 
 ## source portals
 source $explicitPortalStore;
