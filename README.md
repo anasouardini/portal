@@ -6,10 +6,9 @@ A very basic script for jumping to/from paths without having to write the whole 
 
 ## Install
 
-In your `zsh` session, with `zsh-zap` installed, run: `plug anasouardini/portal`
-Add `plug anasouardini/portal` to you `.zshrc` file for persistence.
+(If there is enough interest, I'll probably redo it in Golang and try to distribute so you can install it as you would with any other package)
 
-If you don't have `zsh-zap` installed, download the script from the repository and `source` it in your `.zshrc` file. Add `source portal.plugin.zsh` in you `.zshrc`.
+If you don't have `zsh-zap` installed, download the script from the repository and `source` it in your `.zshrc` file: add `source portal.plugin.zsh` in you `.zshrc`. Otherwise In your `zsh` session, with `zsh-zap` installed, add `plug anasouardini/portal` to your `.zshrc`.
 
 ## Usage
 
@@ -19,7 +18,7 @@ A basic way to use Portal is by visiting paths as you would normally, and then e
 
 The 2nd way you can use Portal is by explicitly storing a path with a name using the command `portal create [name]`, so you can always access it with that same name, use this with paths that always exist since they'd never get changed.
 
-These are not exclusive to each other, use both whenever you see fit.
+Use both methods whenever you see fit.
 
 Another feature Portal gives you is a history of paths you've visited in that shell session (stored in memory), so you can easily browse back and forth with no effort: you can either use `cdd` for going down/back and `cdu` for up/forwards or with the keybindings `Ctrl+j` and `Ctrl+u` respectively.
 
