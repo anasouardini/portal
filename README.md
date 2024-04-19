@@ -14,13 +14,13 @@ If you don't have `zsh-zap` installed, download the script from the repository a
 
 For a quick Usage menu, type `portal help`.
 
-A basic way to use Portal is by visiting paths as you would normally, and then every path you visited once, you can access it by vaguely typing it: like "im" for "~/.config/nvim", like it's demonstrated in the video above.
+A basic way to use Portal is by visiting paths as you would normally, and then every path you visited once, you can access it by vaguely typing it: like `cd im` for `cd ~/.config/nvim`, like it's demonstrated in the video above.
 
-The 2nd way you can use Portal is by explicitly storing a path with a name using the command `portal create [name]`, so you can always access it with that same name, use this with paths that always exist since they'd never get changed.
+The 2nd way you can use Portal is by explicitly storing a path with a name using the command `portal create [name]`, so you can always access it with that same name. Use this with paths that always exist since they'd never get changed.
 
 Use both methods whenever you see fit.
 
-Another feature Portal gives you is a history of paths you've visited in that shell session, so you can easily browse back and forth with no effort: you can either use `cdd` for going down/back and `cdu` for up/forwards or with the keybindings `Ctrl+j` and `Ctrl+k` respectively.
+Another feature Portal gives you is a history of paths you've visited in that shell session, so you can easily browse back and forth without much effort: you can either use `cdd` for going down/back and `cdu` for up/forwards or with the keybindings `Ctrl+j` and `Ctrl+k` respectively.
 
 Almost everything is stored as a file so you can change anything you'd like manually.
 
@@ -33,6 +33,6 @@ The bindings you set using `portal bind` are stored in: `$HOME/.local/share/port
 
 While, by default, portal helps you *navigate* you paths, that's only a default way to use it: At it's core, Portal is executing commands on given paths (implicitly or explicitly), by default it's the command `cd`. for instance:
 
-The command `portal im tree fig` would list a tree of the path, without having to navigate to it just to do the `tree` command. Or if you prefer the explicit method: `portal ex tree conf`.
+The command `portal im tree fig` would run `tree` on the path "~/.config", without having to navigate to it just to do the `tree` command. Or if you prefer the explicit method: `portal ex tree conf`.
 
 **HAPPY TELEPORTATION!**
