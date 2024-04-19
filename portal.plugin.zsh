@@ -11,11 +11,12 @@ else
     return 0;
 fi
 
-# portalScriptPath="$(pwd)/${BASH_SOURCE[0]}";
-# portalScriptPath="$HOME/.shconf/rc/tools/portal";
-sharedPath="$HOME/.local/share";
-portalScriptPath="${sharedPath}/portals";
-portalHistoryPath="${sharedPath}/portals-history";
+# explicitPortalStore="$(pwd)/${BASH_SOURCE[0]}";
+# explicitPortalStore="$HOME/.shconf/rc/tools/portal";
+sharedPath="$HOME/.local/share/portal";
+explicitPortalStore="${sharedPath}/explicit-portals";
+implicitPortalsStore="${sharedPath}/implicit-portals";
+portalBindingsStore="${sharedPath}/bindings";
 
 historyPointer=0;
 pathHistory=();
@@ -24,16 +25,16 @@ pathHistory=();
 if [[ ! -d $sharedPath ]]; then
   mkdir -p $sharedPath;
 fi
-if [[ ! -f $portalScriptPath ]]; then
-  touch $portalScriptPath;
-  echo -e "declare -A ports" > $portalScriptPath;
+if [[ ! -f $explicitPortalStore ]]; then
+  touch $explicitPortalStore;
+  echo -e "declare -A ports" > $explicitPortalStore;
 fi
-if [[ ! -f $portalHistoryPath ]]; then
-  touch $portalHistoryPath;
+if [[ ! -f $implicitPortalsStore ]]; then
+  touch $implicitPortalsStore;
 fi
 
 ## source portals
-source $portalScriptPath;
+source $explicitPortalStore;
 
 function tempNotes(){
   echo "----------- notes:";
@@ -45,7 +46,7 @@ function _portalExecute(){
   targetCommand=$1
   portalName=$2
 
-  source $portalScriptPath;
+  source $explicitPortalStore;
   if [ -z $1 ]; then
     echo "echo 'provide a portal name.'";
     # return 1;
@@ -74,24 +75,24 @@ function _portalExecute(){
 
 function _portalCreate(){
   if [[ $1 == "history" ]];then
-    # echo "history +=(\"$2\")" >> $portalScriptPath;
-    echo -e $2 >> $portalHistoryPath
+    # echo "history +=(\"$2\")" >> $explicitPortalStore;
+    echo -e $2 >> $implicitPortalsStore
   else
-    # sed -i '0,/-- ports --/{s|-- ports --|-- ports --\nports\['\""$1"\"'\]='"\"$2\""';|}' $portalScriptPath;
-    echo "ports[\"$1\"]=\"$2\"" >> $portalScriptPath;
+    # sed -i '0,/-- ports --/{s|-- ports --|-- ports --\nports\['\""$1"\"'\]='"\"$2\""';|}' $explicitPortalStore;
+    echo "ports[\"$1\"]=\"$2\"" >> $explicitPortalStore;
   fi
 }
 
 function _portalDelete(){
   if [[ -z $1 ]]; then
-    sed -i '/^ports\[.*/g' $portalScriptPath;
+    sed -i '/^ports\[.*/g' $explicitPortalStore;
   else
-    sed -i '/^ports\[\"'"$1"'\"\]/d' $portalScriptPath;
+    sed -i '/^ports\[\"'"$1"'\"\]/d' $explicitPortalStore;
   fi
 }
 
 function _portalList(){
-  source $portalScriptPath;
+  source $explicitPortalStore;
   if [[ -z $1 ]]; then
     # for key in "${!ports[@]}"; do
     #   echo -e "\e[33m$key\e[0m ${ports[$key]}";
@@ -117,12 +118,12 @@ function _portalList(){
   fi
 }
 
-function listDynamicPortals(){
-  command cat ${portalHistoryPath};
+function listImplicitPortals(){
+  command cat ${implicitPortalsStore};
   tempNotes;
 }
 
-function _portalDynamic(){
+function _portalImplicit(){
   targetCommand=$1;
   targetPath=$2;
   if [[ $targetPath == "-" ]]; then
@@ -132,9 +133,9 @@ function _portalDynamic(){
 
   if [[ ! -z $targetPath && ! -d $targetPath ]];then
     # guess the path
-    guessedPaths=$(command cat $portalHistoryPath | command fzf -f $targetPath);
+    guessedPaths=$(command cat $implicitPortalsStore | command fzf -f $targetPath);
     if [[ $targetCommand == 'cdc' ]];then
-      guessedPaths=$(command cat $portalHistoryPath | command fzf -f "$(pwd) ${targetPath}")
+      guessedPaths=$(command cat $implicitPortalsStore | command fzf -f "$(pwd) ${targetPath}")
     fi
 
     if [[ ! -z $guessedPaths ]]; then
@@ -149,7 +150,7 @@ function _portalDynamic(){
       fi
     else
       echo "path is not valid and it wasn't found in history of portals.";
-      echo "portals-history at ${portalHistoryPath}";
+      echo "portals-history at ${implicitPortalsStore}";
     fi
     return 0;
   fi
@@ -160,7 +161,7 @@ function _portalDynamic(){
     parsedTargetPath=$(realpath $targetPath 2> /dev/null);
   fi
 
-  found=$(cat $portalHistoryPath | grep -x "${parsedTargetPath}");
+  found=$(cat $implicitPortalsStore | grep -x "${parsedTargetPath}");
   if [[ -z $found ]]; then
     # store the path
     # echo "new path: " $parsedTargetPath;
@@ -189,7 +190,7 @@ function interactivePortal(){
 
   targetLine=$(echo $targetLine | sed 's/cd //');
 
-  chosenPath=$(command cat $portalHistoryPath | command fzf --query="$targetLine");
+  chosenPath=$(command cat $implicitPortalsStore | command fzf --query="$targetLine");
 
   export BUFFER="cd $chosenPath";
   zle accept-line
@@ -216,14 +217,21 @@ function _portalBind(){
     return 1;
   fi
 
-  cmdList=("help" "list" "create" "jump" "remove" "empty" "dynamic");
+  cmdList=("help" "list" "create" "jump" "remove" "empty" "dynamic", "implicit");
   if [[ ! " ${cmdList[*]} " =~ " ${targetCommand} " ]]; then
     echo "echo 'unknown command: ${targetCommand}'";
     return 1;
   fi
 
-  echo "alias ${targetAlias}='portal ${targetCommand}'" >> $portalScriptPath;
-  source $portalScriptPath;
+  bindingLine="alias ${targetAlias}='portal ${targetCommand}'";
+
+  if [[ ! -z $(command cat $portalBindingsStore | grep -x $bindingLine) ]];then
+    echo "binding already exists: ${targetAlias}";
+    return 1;
+  fi
+
+  echo $bindingLine >> $portalBindingsStore;
+  source $explicitPortalStore;
 }
 
 function navigatePathHistory(){
@@ -334,13 +342,13 @@ helpMenu=(
   "      cdu            'cd' to next path in history (shown by 'cdl')"
   "                     you can also use keybinding 'Ctrl+k'"
   "      cdh            lists history of visited paths"
-  "      dynamic        dynamically figures out the path from a vague guess."
-  "                     use 'bind' to set an alias for it like 'pd'."
-  "                     'pd [cmd] [guess/path]' runs the [cmd] and passes"
+  "      implicit, im   implicitly figures out the path from a vague guess."
+  "                     use 'bind' to set an alias for it like 'pi'."
+  "                     'pi [cmd] [guess/path]' runs the [cmd] and passes"
   "                     the [guess/path] to it as an argument."
   " "
-  "                     e.g: 'pd stat fig' runs 'stat' on '~/.config'"
-  "                     note: 'pd cd fig' is already under the alias 'cd',"
+  "                     e.g: 'pi stat fig' runs 'stat' on '~/.config'"
+  "                     note: 'pi cd fig' is already under the alias 'cd',"
   "                     so you can just run 'cd fig' as you would normally"
   " "
   "    ====== Explicit:"
@@ -355,8 +363,8 @@ helpMenu=(
   "      list           lists all portals, unless you pass a portal name"
   "                     in which case it only lists that portal"
   "                     e.g: 'du -h \$(portal list config)'"
-  "      execute        runs command on the selected portal"
-  "                     e.g: 'portal execute tree [portal]' runs 'tree' on"
+  "      execute, ex    runs command on the selected portal"
+  "                     e.g: 'portal ex tree [portal]' runs 'tree' on"
   "                     the selected portal"
   "                     'portal jump' runs 'portal execute cd [portal]'"
 );
@@ -372,12 +380,12 @@ function portal(){
     _portalDelete
   elif [[ $1 == "list" ]]; then
     _portalList $2
-  elif [[ $1 == "execute" ]]; then
+  elif [[ $1 == "execute" || $1 == "ex" ]]; then
     _portalExecute $2 $3
   elif [[ $1 == "bind" ]]; then
     _portalBind $2 $3
-  elif [[ $1 == "dynamic" ]]; then
-    _portalDynamic $2 $3
+  elif [[ $1 == "dynamic" || $1 == "im" ]]; then
+    _portalImplicit $2 $3
   elif [[ $1 == "help" ]]; then
     for line in $helpMenu; do
       echo $line;
@@ -389,21 +397,10 @@ function portal(){
   fi
 }
 
-# aliases for manual teleportation
-# alias ph="portal help";
-# alias pc="portal create";
-# alias pj="portal jump";
-# alias pr="portal remove";
-# alias pe="portal empty";
-# alias pl="portal list";
-
-# aliases for dynamic teleportation
-# alias pd="portal dynamic";
-
-# special alias for cd (dynamic teleportation)
-alias cdl="listDynamicPortals";
-alias cd="portal dynamic 'cd'";
-alias cdc="portal dynamic 'cdc'";
+# special alias for cd (implicit teleportation)
+alias cdl="listImplicitPortals";
+alias cd="portal implicit 'cd'";
+alias cdc="portal implicit 'cdc'";
 
 if [[ $whatShell == "zsh" ]]; then
   zle -N interactivePortal;
