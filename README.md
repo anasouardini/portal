@@ -20,7 +20,7 @@ The 2nd way you can use Portal is by explicitly storing a path with a name using
 
 Use both methods whenever you see fit.
 
-Another feature Portal gives you is a history of paths you've visited in that shell session (stored in memory), so you can easily browse back and forth with no effort: you can either use `cdd` for going down/back and `cdu` for up/forwards or with the keybindings `Ctrl+j` and `Ctrl+u` respectively.
+Another feature Portal gives you is a history of paths you've visited in that shell session, so you can easily browse back and forth with no effort: you can either use `cdd` for going down/back and `cdu` for up/forwards or with the keybindings `Ctrl+j` and `Ctrl+k` respectively.
 
 Almost everything is stored as a file so you can change anything you'd like manually.
 
