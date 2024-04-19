@@ -8,7 +8,7 @@ A very basic script for jumping to/from paths without having to write the whole 
 
 (If there is enough interest, I'll probably redo it in Golang and try to distribute it so you can install it as you would with any other package)
 
-If you don't have `zsh-zap` installed, download the script from the repository and `source` it in your `.zshrc` file: add `source portal.plugin.zsh` in you `.zshrc`. Otherwise In your `zsh` session, with `zsh-zap` installed, add `plug anasouardini/portal` to your `.zshrc`.
+If you don't have `zsh-zap` installed, download the script from the repository and `source` it in your `.zshrc` file: add `source portal.plugin.zsh` in you `.zshrc`. Otherwise just add `plug anasouardini/portal` to your `.zshrc`.
 
 ## Usage
 
