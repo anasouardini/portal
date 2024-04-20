@@ -2,7 +2,7 @@
 
 https://github.com/anasouardini/portal/assets/114059811/57d9e0e2-2353-4057-9b90-9f08c72ead61
 
-A very basic script for jumping to/from paths without having to write the whole path, open multiple terminal sessions or do a file system search using `fzf`.
+A very basic script for jumping to/from paths without having to write the whole path, open multiple terminal sessions or manually search using `fzf`. Portal is heavily inspired by [Z](https://github.com/rupa/z).
 
 ## Install
 
