@@ -136,9 +136,9 @@ function _portalImplicit(){
 
   if [[ ! -z $targetPath && ! -d $targetPath ]];then
     # guess the path
-    guessedPaths=$(command cat $implicitPortalsStore | command fzf -f $targetPath);
+    guessedPaths=$(command cat $implicitPortalsStore | command fzf -i -f $targetPath);
     if [[ $targetCommand == 'cdc' ]];then
-      guessedPaths=$(command cat $implicitPortalsStore | command fzf -f "$(pwd) ${targetPath}")
+      guessedPaths=$(command cat $implicitPortalsStore | command fzf -i -f "$(pwd) ${targetPath}")
     fi
 
     if [[ ! -z $guessedPaths ]]; then
@@ -193,7 +193,7 @@ function interactivePortal(){
 
   targetLine=$(echo $targetLine | sed 's/cd //');
 
-  chosenPath=$(command cat $implicitPortalsStore | command fzf --query="$targetLine");
+  chosenPath=$(command cat $implicitPortalsStore | command fzf -i --query="$targetLine");
 
   export BUFFER="cd $chosenPath";
   zle accept-line
@@ -202,7 +202,7 @@ function interactivePortal(){
 }
 
 function cdi(){
-  chosenPath=$(command cat $implicitPortalsStore | command fzf);
+  chosenPath=$(command cat $implicitPortalsStore | command fzf -i);
   export BUFFER="cd $chosenPath";
   zle accept-line
 }
