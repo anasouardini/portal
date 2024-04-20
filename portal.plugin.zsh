@@ -201,6 +201,12 @@ function interactivePortal(){
   # xdotool type $chosenPath;
 }
 
+function cdi(){
+  chosenPath=$(command cat $implicitPortalsStore | command fzf);
+  export BUFFER="cd $chosenPath";
+  zle accept-line
+}
+
 function _portalBind(){
   targetCommand=$1;
   targetAlias=$2;
@@ -338,6 +344,7 @@ helpMenu=(
   "                     think about the tool while browsing your files"
   "                     long version: 'portal cd [path/guess]'"
   "                     use keybinding 'Ctrl+p' after 'cd' for interactive mode"
+  "      cdi            shows an interactive menu from which you can choose"
   "      cdc            same as 'cd' but searches in the current directory"
   "      cdl            lists the portals (paths) that Portal collected"
   "      cdd            'cd' to previous path in history (shown by 'cdh')"
