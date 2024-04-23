@@ -395,7 +395,7 @@ function portal(){
     _portalExecute $2 $3
   elif [[ $1 == "bind" ]]; then
     _portalBind $2 $3
-  elif [[ $1 == "dynamic" || $1 == "im" ]]; then
+  elif [[ $1 == "dynamic" || $1 == "implicit" || $1 == "im" ]]; then
     _portalImplicit $2 $3
   elif [[ $1 == "help" ]]; then
     for line in $helpMenu; do
@@ -409,9 +409,9 @@ function portal(){
 }
 
 # special alias for cd (implicit teleportation)
-alias cdl="listImplicitPortals";
-alias cd="portal implicit 'cd'";
 alias cdc="portal implicit 'cdc'";
+alias cd="portal implicit 'cd'";
+alias cdl="listImplicitPortals";
 
 if [[ $whatShell == "zsh" ]]; then
   zle -N interactivePortal;
