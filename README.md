@@ -31,7 +31,7 @@ The lists are stored respectively in:
 
 The bindings you set using `portal bind` are stored in: `$HOME/.local/share/portal/bindings`. Portal doesn't set short aliases/bindings for all commands so it doesn't conflict with any of your other aliases. 
 
-While, by default, portal helps you *navigate* you paths, that's only a default way to use it: At it's core, Portal is executing commands on given paths (implicitly or explicitly), by default it's the command `cd`. for instance:
+While, by default, portal helps you *navigate* paths, that's only a default way to use it: At it's core, Portal is executing commands on given paths (implicitly or explicitly), by default it's the command `cd`. for instance:
 
 The command `portal im tree fig` would run `tree` on the path "~/.config", without having to navigate to it just to do the `tree` command. Or if you prefer the explicit method: `portal ex tree conf`.
 
