@@ -94,7 +94,7 @@ function _portalDelete(){
   fi
 }
 
-function _portalList(){
+function _listExplicitPortals(){
   source $explicitPortalStore;
   if [[ -z $1 ]]; then
     # for key in "${!ports[@]}"; do
@@ -121,7 +121,7 @@ function _portalList(){
   fi
 }
 
-function listImplicitPortals(){
+function _listImplicitPortals(){
   command cat ${implicitPortalsStore};
   tempNotes;
 }
@@ -347,7 +347,8 @@ helpMenu=(
   "                     use keybinding 'Ctrl+p' after 'cd' for interactive mode"
   "      cdi            shows an interactive menu from which you can choose"
   "      cdc            same as 'cd' but searches in the current directory"
-  "      cdl            lists the portals (paths) that Portal collected"
+  "      cdl            lists portals (paths) that Portal collected"
+  "      cdlx           lists portals (paths) that YOU've manually collected"
   "      cdd            'cd' to previous path in history (shown by 'cdh')"
   "                     you can also use keybinding 'Ctrl+j'"
   "      cdu            'cd' to next path in history (shown by 'cdh')"
@@ -390,8 +391,8 @@ function portal(){
     _portalDelete $2
   elif [[ $1 == "empty" ]]; then
     _portalDelete
-  elif [[ $1 == "list" ]]; then
-    _portalList $2
+  # elif [[ $1 == "list" ]]; then
+  #   _portalList $2
   elif [[ $1 == "execute" || $1 == "ex" ]]; then
     _portalExecute $2 $3
   elif [[ $1 == "bind" ]]; then
@@ -412,7 +413,8 @@ function portal(){
 # special alias for cd (implicit teleportation)
 alias cdc="portal implicit 'cdc'";
 alias cd="portal implicit 'cd'";
-alias cdl="listImplicitPortals";
+alias cdl="_listImplicitPortals";
+alias cdlx="_listExplicitPortals";
 
 if [[ $whatShell == "zsh" ]]; then
   zle -N interactivePortal;
