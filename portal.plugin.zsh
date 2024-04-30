@@ -40,9 +40,9 @@ fi
 source $explicitPortalStore;
 
 function tempNotes(){
-  echo "----------- notes:";
-  echo "'cdl' lists portals, which you access when you vaguely type a path after 'cd'.";
-  echo "'cdh' lists history, which you can navigate using 'cdd' and 'cdu' or Ctrl+j and Ctrl+k.";
+  # echo "----------- notes:";
+  # echo "'cdl' lists portals, which you access when you vaguely type a path after 'cd'.";
+  # echo "'cdh' lists history, which you can navigate using 'cdd' and 'cdu' or Ctrl+j and Ctrl+k.";
 }
 
 function _portalExecute(){
@@ -316,6 +316,7 @@ function cdu() {
 
 function cdh() {
   echo "pwd: $currentPathPosition";
+  index=0;
   for item in "${path_list[@]}"; do
     echo "$((++index)) $item";
   done
