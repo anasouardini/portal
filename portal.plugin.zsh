@@ -240,7 +240,7 @@ function _portalBind(){
   fi
 
   echo $bindingLine >> $portalBindingsStore;
-  source $explicitPortalStore;
+  source $portalBindingsStore;
 }
 
 function navigatePathHistory(){
