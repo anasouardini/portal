@@ -226,7 +226,7 @@ function _portalBind(){
     return 1;
   fi
 
-  cmdList=("help" "list" "create" "jump" "remove" "empty" "dynamic", "implicit");
+  cmdList=("help" "list" "create" "jump" "remove" "empty" "dynamic" "implicit", "im");
   if [[ ! " ${cmdList[*]} " =~ " ${targetCommand} " ]]; then
     echo "echo 'unknown command: ${targetCommand}'";
     return 1;
