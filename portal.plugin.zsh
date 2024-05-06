@@ -1,11 +1,16 @@
 # pluginPath="$HOME/.local/share/zap/plugins/portal/portal.plugin.zsh";
 
 #### setp
+listStartIndex=0; # some silly shells start with '1' ¯\_(ツ)_/¯
 whatShell='';
 if [ -n "$BASH_VERSION" ]; then
     whatShell="bash";
+  if [[ $whatShell == "bash" ]]; then
+    currentPathPosition=0
+  fi
 elif [ -n "$ZSH_VERSION" ]; then
     whatShell="zsh";
+    listStartIndex=1;
 else
     echo "unknown shell, use either bash or zsh";
     return 0;
@@ -40,6 +45,7 @@ fi
 source $explicitPortalStore;
 
 function tempNotes(){
+  echo "";
   # echo "----------- notes:";
   # echo "'cdl' lists portals, which you access when you vaguely type a path after 'cd'.";
   # echo "'cdh' lists history, which you can navigate using 'cdd' and 'cdu' or Ctrl+j and Ctrl+k.";
@@ -52,7 +58,6 @@ function _portalExecute(){
   source $explicitPortalStore;
   if [ -z $1 ]; then
     echo "echo 'provide a portal name.'";
-    # return 1;
   fi
 
   portalPath="";
@@ -66,7 +71,6 @@ function _portalExecute(){
 
   if [ -z $portalPath ]; then
     echo "echo 'no such portal:' ${portalName}";
-    # return 1;
   fi
 
   if [[ $targetCommand == "cd" ]]; then
@@ -115,7 +119,7 @@ function _listExplicitPortals(){
     done
     if [ -z $portalPath ]; then
       echo "no such portal: $1";
-      return 1;
+      return 0;
     fi
     echo "$portalPath";
   fi
@@ -196,15 +200,20 @@ function interactivePortal(){
   chosenPath=$(command cat $implicitPortalsStore | command fzf -i --query="$targetLine");
 
   export BUFFER="cd $chosenPath";
-  zle accept-line
+  if [[ $whatShell == "zsh" ]];then
+    zle accept-line;
+  fi
 
   # xdotool type $chosenPath;
 }
 
 function cdi(){
   chosenPath=$(command cat $implicitPortalsStore | command fzf -i);
-  export BUFFER="cd $chosenPath";
-  zle accept-line
+  # export BUFFER="cd $chosenPath";
+  builtin cd $chosenPath;
+  if [[ $whatShell == "zsh" ]];then
+    zle accept-line;
+  fi
 }
 
 function _portalBind(){
@@ -213,30 +222,30 @@ function _portalBind(){
   
   if [[ -z $targetAlias ]]; then
     echo "provide an alias";
-    return 1;
+    1eturn 0;
   fi
 
   if [[ $targetAlias == *" "* ]]; then
     echo "alias must not contain spaces";
-    return 1;
+    return 0;
   fi
 
   if [[ -z $targetCommand ]]; then
     echo "provide a command";
-    return 1;
+    return 0;
   fi
 
   cmdList=("help" "list" "create" "jump" "remove" "empty" "dynamic" "implicit", "im");
   if [[ ! " ${cmdList[*]} " =~ " ${targetCommand} " ]]; then
     echo "echo 'unknown command: ${targetCommand}'";
-    return 1;
+    return 0;
   fi
 
   bindingLine="alias ${targetAlias}='portal ${targetCommand}'";
 
   if [[ ! -z $(command cat $portalBindingsStore | grep -x $bindingLine) ]];then
     echo "binding already exists: ${targetAlias}";
-    return 1;
+    return 0;
   fi
 
   echo $bindingLine >> $portalBindingsStore;
@@ -268,57 +277,67 @@ path_list=(
 )
 
 # Initialize a variable to keep track of the current position
-currentPathPosition=1
+currentPathPosition=$listStartIndex;
 
 # Function to add a path to the list
 function add_path() {
-    path_list+=$(pwd)
-    currentPathPosition=$(( ${#path_list[@]} ))
-    if [[ ${#path_list[@]} -gt 30 ]];then
-        path_list=("${path_list[@]:1}");
-        currentPathPosition=$(( ${#path_list[@]} ))
-    fi
+  lastItemIndex=$(( ${#path_list[@]} + $listStartIndex ));
+  path_list[$lastItemIndex]=$(pwd)
+  currentPathPosition=$(( $lastItemIndex ))
+  if [[ $lastItemIndex -gt 30 ]];then
+      path_list=("${path_list[@]:1}");
+      currentPathPosition=$(( $lastItemIndex ))
+  fi
 }
 
 # Function to navigate to the last visited path
 function cdd() {
-  if [ $currentPathPosition -gt 1 ]; then
+  if [ $currentPathPosition -gt $listStartIndex ]; then
     currentPathPosition=$((currentPathPosition - 1));
     previousPath="${path_list[$currentPathPosition]}";
     # echo "previous path: ${previousPath}";
     # echo "current pos: ${currentPathPosition}";
     builtin cd $previousPath;
     # export $BUFFER="$BUFFER";
-    zle accept-line;
+    if [[ $whatShell == "zsh" ]];then
+      zle accept-line;
+    fi
   else
     echo "No previous directory in history."
   fi
 
-  zle accept-line;
+  if [[ $whatShell == "zsh" ]];then
+    zle accept-line;
+  fi
 }
 
 # Function to navigate to the next visited path
 function cdu() {
-  if [ $currentPathPosition -lt $(( ${#path_list[@]} )) ]; then
+  lastItemIndex=$(( ${#path_list[@]} + $listStartIndex ));
+  if [ $currentPathPosition -lt $lastItemIndex ]; then
     currentPathPosition=$((currentPathPosition + 1));
     nextPath="${path_list[$currentPathPosition]}";
     # echo "next path: ${nextPath}";
     # echo "current pos: ${currentPathPosition}";
     builtin cd $nextPath;
     # export $BUFFER="$BUFFER";
-    zle accept-line;
+    if [[ $whatShell == "zsh" ]];then
+      zle accept-line;
+    fi
   else
     echo "No next directory in history."
   fi
 
-  zle accept-line;
+  if [[ $whatShell == "zsh" ]];then
+    zle accept-line;
+  fi
 }
 
 function cdh() {
   echo "pwd: $currentPathPosition";
-  index=0;
+  index=$listStartIndex;
   for item in "${path_list[@]}"; do
-    echo "$((++index)) $item";
+    echo "$((index++)) $item";
   done
 
   tempNotes;
@@ -424,6 +443,7 @@ if [[ $whatShell == "zsh" ]]; then
   bindkey '^j' cdd;
   bindkey '^k' cdu;
 elif [[ $whatShell == "bash" ]]; then
+  echo "";
   #* bash is full of quircks in this regard.
   # bind -x '"\C-p":"interactivePortal\n"';
 fi
